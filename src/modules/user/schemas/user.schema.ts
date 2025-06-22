@@ -3,10 +3,10 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class User extends Document {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name: string | undefined;
 
-  @Prop()
+  @Prop({ type: String })
   email: string | undefined;
 }
 
