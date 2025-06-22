@@ -1,0 +1,450 @@
+{
+	"info": {
+		"_postman_id": "4c914c44-2908-438c-92e3-38b98cef6544",
+		"name": "taxi24-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24132050"
+	},
+	"item": [
+		{
+			"name": "Conductores",
+			"item": [
+				{
+					"name": "Crear un conductor",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Juliana López\",\n    \"email\": \"juliana@example.com\",\n    \"telefono\": \"+1234567890\",\n    \"licencia\": \"LIC12345678\",\n    \"disponible\": false,\n    \"ubicacion\": {\n        \"type\": \"Point\",\n        \"coordinates\": [-74.5, 40]\n    },\n    \"vehiculo\": {\n        \"placa\": \"ABC123\",\n        \"modelo\": \"Nissan Corolla\",\n        \"color\": \"Rojo\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/conductores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"conductores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar todos los conductores",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/conductores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"conductores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener un conductor por ID",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/conductores/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"conductores",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar conductores disponibles",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/conductores/disponibles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"conductores",
+								"disponibles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar conductores cercanos",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/conductores/cercanos?lat=40&lng=-74.5&distancia=3000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"conductores",
+								"cercanos"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "40"
+								},
+								{
+									"key": "lng",
+									"value": "-74.5"
+								},
+								{
+									"key": "distancia",
+									"value": "3000"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Viajes",
+			"item": [
+				{
+					"name": "Crear un viaje",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pasajeroId\": \"ID_DEL_PASAJERO\",\n    \"conductorId\": \"ID_DEL_CONDUCTOR\",\n    \"origen\": {\n        \"latitud\": 4.710989,\n        \"longitud\": -74.072092\n    },\n    \"destino\": {\n        \"latitud\": 4.710989,\n        \"longitud\": -74.072092\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/viajes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"viajes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Viajes activos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/viajes/activos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"viajes",
+								"activos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Estatus de viaje",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/viajes/ID_DEL_VIAJE",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"viajes",
+								"ID_DEL_VIAJE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Iniciar un viaje",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"conductorId\": \"ID_DEL_CONDUCTOR\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/viajes/ID_DEL_VIAJE/iniciar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"viajes",
+								"ID_DEL_VIAJE",
+								"iniciar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Completar un viaje",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"distanciaKm\": 5.3,\n    \"duracionMinutos\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/viajes/ID_DEL_VIAJE/completar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"viajes",
+								"ID_DEL_VIAJE",
+								"completar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuarios pasajero",
+			"item": [
+				{
+					"name": "Crear un nuevo usuario (pasajero)",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Juan Pérez\",\n    \"email\": \"juan@example.com\",\n    \"password\": \"password123\",\n    \"telefono\": \"+1234567890\",\n    \"ubicacion\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -74.006,\n            40.7128\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todos los usuarios",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener un usuario por ID",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/users/USER_ID",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users",
+								"USER_ID"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Factura",
+			"item": [
+				{
+					"name": "Ver factura generada",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/facturas/viaje/ID_DEL_VIAJE",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"facturas",
+								"viaje",
+								"ID_DEL_VIAJE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar todas las facturas",
+					"request": {
+						"auth": {
+							"type": "inherit"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/facturas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"facturas"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

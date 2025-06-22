@@ -36,30 +36,30 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('🚕 API Taxi24')
     .setDescription(
-      'API para el sistema de transporte Taxi24. Esta documentación describe todos los endpoints disponibles para interactuar con el sistema.'
+      `## 📋 Descripción General
+      \nAPI para el sistema de transporte Taxi24 que permite la gestión de conductores, pasajeros, viajes y facturas.
+      \n### Características Principales
+- Gestión de conductores y vehículos
+- Registro y gestión de pasajeros
+- Sistema de seguimiento de viajes en tiempo real
+- Generación automática de facturas
+- Búsqueda de conductores cercanos
+\n### Códigos de Estado
+- 200: OK - La petición fue exitosa
+- 201: Creado - Recurso creado exitosamente
+- 400: Solicitud incorrecta - Error en la validación de datos
+- 404: No encontrado - El recurso solicitado no existe
+- 500: Error del servidor - Ocurrió un error inesperado`
     )
-    .setVersion('1.0')
+    .setVersion('1.0.0')
     .setContact(
-      'Equipo Taxi24',
-      'https://taxi24.com',
+      'Equipo de Soporte',
+      'https://taxi24.com/soporte',
       'soporte@taxi24.com'
     )
     .addServer('http://localhost:3000', 'Servidor de Desarrollo')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Ingrese el token JWT',
-        in: 'header',
-      },
-      'access-token',
-    )
-    .addTag('conductores', 'Operaciones relacionadas con conductores')
-    .addTag('viajes', 'Operaciones relacionadas con viajes')
-    .addTag('usuarios', 'Operaciones relacionadas con usuarios')
-    .addTag('facturacion', 'Operaciones relacionadas con facturación')
+    .addTag('Conductores', 'Operaciones relacionadas con conductores')
+    .addTag('Facturas', 'Operaciones relacionadas con facturas')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
