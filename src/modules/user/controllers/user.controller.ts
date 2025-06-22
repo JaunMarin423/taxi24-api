@@ -44,9 +44,20 @@ interface UserResponseData {
 
 /**
  * Respuesta de la API para operaciones de pasajeros
+ * @class UserResponse
+ * @description Representa la respuesta estandarizada para operaciones de usuarios
  */
 class UserResponse {
+  /**
+   * ID único del usuario
+   * @example '507f1f77bcf86cd799439011'
+   */
   _id: string;
+
+  /**
+   * Nombre completo del usuario
+   * @example 'Juan Pérez'
+   */
   nombre: string;
   email: string;
   telefono: string;
@@ -73,10 +84,10 @@ class UserResponse {
  * Permite realizar operaciones CRUD sobre los pasajeros del sistema.
  */
 @ApiTags('Pasajeros')
-@Controller('pasajeros')
+@Controller('users')
+@ApiExtraModels(UserResponse)
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-@ApiExtraModels(UserResponse)
 export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
@@ -87,51 +98,35 @@ export class UserController {
    * @returns Pasajero creado
    */
   @Post()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Crear un nuevo pasajero',
-    description: 'Crea un nuevo registro de pasajero en el sistema.'
+    description: 'Registra un nuevo pasajero en el sistema con la información proporcionada.'
   })
-  @ApiCreatedResponse({ 
-    description: 'Pasajero creado exitosamente',
-    type: UserResponse,
-    schema: {
-      example: {
-        _id: '507f1f77bcf86cd799439011',
-        name: 'Juan Pérez',
-        email: 'juan@example.com',
-        telefono: '+1234567890',
-        ubicacion: {
-          type: 'Point',
-          coordinates: [-74.5, 40.0]
-        },
-        createdAt: '2023-06-22T15:42:11.000Z',
-        updatedAt: '2023-06-22T15:42:11.000Z'
-      }
-    }
+  @ApiCreatedResponse({
+    description: 'El pasajero ha sido creado exitosamente',
+    type: UserResponse
   })
-  @ApiBadRequestResponse({ 
+  @ApiBadRequestResponse({
     description: 'Datos de entrada inválidos o incompletos',
     schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 400 },
-        message: { type: 'array', items: { type: 'string' }, example: ['El nombre es requerido', 'El email no es válido'] },
-        error: { type: 'string', example: 'Bad Request' }
+      example: {
+        statusCode: 400,
+        message: ['El correo electrónico es obligatorio', 'La contraseña debe tener al menos 8 caracteres'],
+        error: 'Bad Request'
       }
     }
   })
-  @ApiConflictResponse({ 
+  @ApiConflictResponse({
     description: 'El correo electrónico ya está registrado',
     schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 409 },
-        message: { type: 'string', example: 'El correo electrónico ya está registrado' },
-        error: { type: 'string', example: 'Conflict' }
+      example: {
+        statusCode: 409,
+        message: 'El correo electrónico ya está registrado',
+        error: 'Conflict'
       }
     }
   })
-  @ApiBody({ 
+  @ApiBody({
     type: CreateUserDto,
     description: 'Datos del pasajero a crear',
     examples: {
@@ -167,7 +162,6 @@ export class UserController {
       this.logger.log(`Usuario creado exitosamente con ID: ${user._id}`);
       
       const response = this.mapToUserResponse(user);
-      // Asegurarse de que el campo 'nombre' esté presente
       (response as any).nombre = response.name;
       
       return response;
@@ -177,12 +171,10 @@ export class UserController {
       
       this.logger.error(`Error al crear usuario: ${errorMessage}`, errorStack);
       
-      // Si el error ya es un HttpException, lo relanzamos
       if (error instanceof HttpException) {
         throw error;
       }
       
-      // Para cualquier otro error, lanzamos un error interno del servidor
       throw new InternalServerErrorException('Error al procesar la solicitud');
     }
   }
@@ -192,14 +184,42 @@ export class UserController {
    * @returns Lista de pasajeros
    */
   @Get()
-  @ApiOperation({ 
-    summary: 'Obtener todos los pasajeros', 
-    description: 'Retorna una lista de todos los pasajeros registrados' 
+  @ApiOperation({
+    summary: 'Obtener todos los pasajeros',
+    description: 'Retorna una lista paginada de todos los pasajeros registrados en el sistema.'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página para la paginación',
+    example: 1
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Cantidad de elementos por página',
+    example: 10
+  })
+  @ApiResponse({
+    status: 200,
     description: 'Lista de pasajeros',
-    type: [UserResponse]
+    type: [UserResponse],
+    headers: {
+      'X-Total-Count': {
+        description: 'Número total de pasajeros',
+        schema: { type: 'integer' }
+      },
+      'X-Page': {
+        description: 'Página actual',
+        schema: { type: 'integer' }
+      },
+      'X-Total-Pages': {
+        description: 'Número total de páginas',
+        schema: { type: 'integer' }
+      }
+    }
   })
   async findAll(): Promise<UserResponse[]> {
     try {
@@ -209,7 +229,7 @@ export class UserController {
         return new UserResponse({
           _id: userObj._id.toString(),
           name: userObj.name,
-          nombre: userObj.name, // Incluir el campo 'nombre'
+          nombre: userObj.name, 
           email: userObj.email,
           telefono: userObj.telefono,
           ubicacion: userObj.ubicacion,
@@ -231,19 +251,42 @@ export class UserController {
    * @returns Información del pasajero
    */
   @Get(':id')
-  @ApiOperation({ 
-    summary: 'Obtener un pasajero por ID', 
-    description: 'Obtiene la información detallada de un pasajero específico' 
+  @ApiOperation({
+    summary: 'Obtener un pasajero por ID',
+    description: 'Obtiene los detalles de un pasajero específico utilizando su ID único.'
   })
-  @ApiParam({ name: 'id', description: 'ID del pasajero' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Información del pasajero',
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'ID único del pasajero',
+    example: '507f1f77bcf86cd799439011'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Detalles del pasajero',
     type: UserResponse
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Pasajero no encontrado'
+  @ApiResponse({
+    status: 404,
+    description: 'Pasajero no encontrado',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'No se encontró el pasajero con el ID especificado',
+        error: 'Not Found'
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'ID inválido',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'ID de pasajero inválido',
+        error: 'Bad Request'
+      }
+    }
   })
   async findOne(@Param('id') id: string): Promise<UserResponse> {
     try {
@@ -255,7 +298,7 @@ export class UserController {
       return new UserResponse({
         _id: userObj._id.toString(),
         name: userObj.name,
-        nombre: userObj.name, // Incluir el campo 'nombre'
+        nombre: userObj.name, 
         email: userObj.email,
         telefono: userObj.telefono,
         ubicacion: userObj.ubicacion,
@@ -277,23 +320,73 @@ export class UserController {
    * Busca conductores cercanos a una ubicación
    * @param latitud Latitud de la ubicación
    * @param longitud Longitud de la ubicación
-   * @param radio Radio de búsqueda en kilómetros (opcional, por defecto 3km)
+   * @param radio Radio de búsqueda en metros (opcional, por defecto 3000m)
    * @returns Lista de conductores cercanos
    */
   @Get('cercanos')
-  @ApiOperation({ 
-    summary: 'Buscar conductores cercanos', 
-    description: 'Encuentra conductores disponibles en un radio de 3km desde la ubicación proporcionada' 
+  @ApiOperation({
+    summary: 'Buscar conductores cercanos',
+    description: 'Encuentra conductores disponibles dentro de un radio específico de la ubicación proporcionada.'
   })
-  @ApiQuery({ name: 'latitud', required: true, type: Number, description: 'Latitud de la ubicación' })
-  @ApiQuery({ name: 'longitud', required: true, type: Number, description: 'Longitud de la ubicación' })
-  @ApiQuery({ name: 'radio', required: false, type: Number, description: 'Radio de búsqueda en kilómetros (opcional, por defecto 3km)' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiQuery({
+    name: 'latitud',
+    type: Number,
+    required: true,
+    description: 'Latitud de la ubicación de búsqueda',
+    example: 40.7128
+  })
+  @ApiQuery({
+    name: 'longitud',
+    type: Number,
+    required: true,
+    description: 'Longitud de la ubicación de búsqueda',
+    example: -74.0060
+  })
+  @ApiQuery({
+    name: 'radio',
+    type: Number,
+    required: false,
+    description: 'Radio de búsqueda en metros (máximo 10000m)',
+    example: 3000
+  })
+  @ApiResponse({
+    status: 200,
     description: 'Lista de conductores cercanos',
-    type: [Object]
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string', example: '507f1f77bcf86cd799439011' },
+          nombre: { type: 'string', example: 'Carlos López' },
+          email: { type: 'string', example: 'carlos@taxi24.com' },
+          telefono: { type: 'string', example: '+1234567890' },
+          distancia: { type: 'number', example: 1234.56, description: 'Distancia en metros desde la ubicación de búsqueda' },
+          ubicacion: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', example: 'Point' },
+              coordinates: {
+                type: 'array',
+                items: { type: 'number' },
+                example: [-74.0060, 40.7128]
+              }
+            }
+          }
+        }
+      }
+    }
   })
-  @ApiResponse({ 
+  @ApiResponse({
+    status: 400,
+    description: 'Parámetros de ubicación inválidos',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['latitud debe ser una cadena de coordenadas válida'],
+        error: 'Bad Request'
+      }
+    }
     status: 400, 
     description: 'Parámetros de ubicación inválidos'
   })

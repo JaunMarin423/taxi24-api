@@ -2,47 +2,238 @@
 
 API para el sistema de transporte Taxi24, desarrollada con **NestJS**, **TypeScript** y **MongoDB** siguiendo los principios de Clean Architecture.
 
-## 🏗️ Estructura del Proyecto
-
-```
-src/
-├── main.ts                  # Punto de entrada de la aplicación
-├── app.module.ts            # Módulo principal
-├── common/                  # Utilidades y decoradores comunes
-├── modules/
-│   ├── conductor/          # Módulo de conductores
-│   ├── user/                # Módulo de pasajeros
-│   ├── viaje/               # Módulo de viajes
-│   └── factura/             # Módulo de facturación
-└── shared/                  # Recursos compartidos
-    ├── dto/                 # Objetos de Transferencia de Datos
-    ├── entities/            # Entidades de la base de datos
-    └── interfaces/          # Interfaces y tipos TypeScript
-```
+[![NestJS](https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white)](https://swagger.io/)
 
 ## 📋 Características Principales
 
-### 🚗 Gestión de Conductores
-- Crear nuevo conductor
-- Listar conductores disponibles
-- Buscar conductores cercanos
-- Obtener conductor por ID
+- ✅ **Gestión de Conductores**: Registro, búsqueda y gestión de conductores
+- 👥 **Gestión de Pasajeros**: Registro y gestión de usuarios pasajeros
+- 🚖 **Sistema de Viajes**: Creación y seguimiento de viajes en tiempo real
+- 📊 **Facturación**: Generación automática de facturas
+- 🔍 **Búsqueda Avanzada**: Encuentra conductores cercanos en un radio de 3km
+- 🔐 **Autenticación JWT**: Seguridad robusta con JSON Web Tokens
+- 📚 **Documentación Interactiva**: Documentación completa con Swagger UI
+- 🧪 **Cobertura de Pruebas**: Pruebas unitarias y de integración
 
-### 👥 Gestión de Pasajeros
-- Crear nuevo pasajero
-- Listar todos los pasajeros
-- Obtener pasajero por ID
+## 🚀 Comenzando
 
-### 🚖 Gestión de Viajes
-- Crear nuevo viaje
-- Listar viajes activos
-- Obtener estatus de un viaje
-- Iniciar un viaje
-- Completar un viaje
+### Requisitos Previos
 
-### 🧾 Gestión de Facturas
-- Listar todas las facturas
-- Obtener factura por ID de viaje
+- Node.js (v18 o superior)
+- npm (v9 o superior) o yarn
+- MongoDB (local o Atlas)
+- [NestJS CLI](https://docs.nestjs.com/cli/overview) (opcional):
+  ```bash
+  npm i -g @nestjs/cli
+  ```
+
+### 🛠️ Instalación
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/taxi24-api.git
+   cd taxi24-api
+   ```
+
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+
+3. Configurar variables de entorno:
+   Crear un archivo `.env` en la raíz del proyecto con:
+   ```env
+   # Configuración de la aplicación
+   PORT=3000
+   NODE_ENV=development
+   
+   # Base de datos
+   MONGODB_URI=mongodb://localhost:27017/taxi24
+   
+   # JWT
+   JWT_SECRET=tu_clave_secreta
+   JWT_EXPIRES_IN=1d
+   ```
+
+4. Iniciar la aplicación:
+   ```bash
+   # Modo desarrollo
+   npm run start:dev
+   
+   # Modo producción
+   npm run build
+   npm run start:prod
+   ```
+
+## 🏗️ Estructura del Proyecto
+
+```
+taxi24-api/
+├── src/
+│   ├── main.ts                  # Punto de entrada de la aplicación
+│   ├── app.module.ts            # Módulo principal
+│   ├── common/                  # Utilidades y decoradores comunes
+│   ├── config/                  # Configuraciones de la aplicación
+│   ├── modules/                 # Módulos de la aplicación
+│   │   ├── auth/               # Autenticación y autorización
+│   │   ├── conductor/          # Módulo de conductores
+│   │   ├── user/               # Módulo de pasajeros
+│   │   ├── viaje/              # Módulo de viajes
+│   │   └── factura/            # Módulo de facturación
+│   └── shared/                 # Recursos compartidos
+│       ├── dto/                # Objetos de Transferencia de Datos
+│       ├── entities/           # Entidades de la base de datos
+│       └── interfaces/         # Interfaces y tipos TypeScript
+├── test/                       # Pruebas automatizadas
+├── .env.example               # Ejemplo de variables de entorno
+├── .eslintrc.js               # Configuración de ESLint
+├── .prettierrc                # Configuración de Prettier
+├── jest.config.js             # Configuración de Jest
+├── nest-cli.json              # Configuración de NestJS CLI
+├── package.json               # Dependencias y scripts
+└── tsconfig.json              # Configuración de TypeScript
+```
+
+## 📚 Documentación de la API
+
+La documentación completa de la API está disponible en formato Swagger UI cuando la aplicación está en ejecución:
+
+- **URL de Desarrollo**: http://localhost:3000/api
+- **URL de Producción**: https://api.taxi24.com/api
+
+### 🔐 Autenticación
+
+La API utiliza autenticación JWT. Para autenticarse:
+
+1. Realiza una petición POST a `/auth/login` con tus credenciales
+2. Usa el token recibido en el encabezado `Authorization: Bearer <token>`
+
+### 📝 Ejemplos de Uso
+
+#### Crear un nuevo pasajero
+
+```http
+POST /users
+Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "contraseñaSegura123",
+  "telefono": "+1234567890",
+  "ubicacion": {
+    "type": "Point",
+    "coordinates": [-74.5, 40]
+  }
+}
+```
+
+#### Buscar conductores cercanos
+
+```http
+GET /conductores/cercanos?latitud=40.7128&longitud=-74.0060&radio=3000
+Authorization: Bearer tu_token_jwt
+```
+
+#### Crear un nuevo viaje
+
+```http
+POST /viajes
+Content-Type: application/json
+Authorization: Bearer tu_token_jwt
+
+{
+  "pasajeroId": "507f1f77bcf86cd799439011",
+  "origen": {
+    "type": "Point",
+    "coordinates": [-74.0060, 40.7128]
+  },
+  "destino": {
+    "type": "Point",
+    "coordinates": [-74.0150, 40.7050]
+  }
+}
+```
+
+## 🛠️ Desarrollo
+
+### Variables de Entorno
+
+| Variable | Descripción | Valor por Defecto |
+|----------|-------------|-------------------|
+| `PORT` | Puerto de la aplicación | 3000 |
+| `NODE_ENV` | Entorno de ejecución | development |
+| `MONGODB_URI` | URL de conexión a MongoDB | mongodb://localhost:27017/taxi24 |
+| `JWT_SECRET` | Clave secreta para JWT | - |
+| `JWT_EXPIRES_IN` | Tiempo de expiración del token | 1d |
+
+### Comandos Útiles
+
+```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run start:dev
+
+# Construir para producción
+npm run build
+
+# Ejecutar pruebas
+npm test
+
+# Ejecutar pruebas con cobertura
+npm run test:cov
+
+# Ejecutar linter
+npm run lint
+
+# Formatear código
+npm run format
+```
+
+## 🧪 Pruebas
+
+El proyecto incluye pruebas unitarias, de integración y pruebas E2E para garantizar la calidad del código.
+
+### Ejecutar Pruebas
+
+```bash
+# Ejecutar todas las pruebas
+npm test
+
+# Ejecutar pruebas en modo watch
+npm test -- --watch
+
+# Ejecutar pruebas con cobertura
+npm run test:cov
+
+# Ejecutar pruebas E2E
+npm run test:e2e
+```
+
+## 🤝 Contribución
+
+Las contribuciones son bienvenidas. Por favor, sigue estos pasos:
+
+1. Haz un Fork del proyecto
+2. Crea una rama para tu característica (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Haz push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## ✉️ Contacto
+
+- **Email**: soporte@taxi24.com
+- **Sitio Web**: https://taxi24.com
+- **Documentación**: https://docs.taxi24.com
 
 ## Requisitos Previos
 
