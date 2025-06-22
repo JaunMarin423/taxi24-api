@@ -48,6 +48,14 @@ export class Conductor {
   telefono!: string;
 
   @ApiProperty({
+    description: 'Número de licencia de conducir',
+    example: 'LIC12345678',
+    required: true,
+  })
+  @Prop({ required: true, trim: true, uppercase: true })
+  licencia!: string;
+
+  @ApiProperty({
     description: 'Ubicación geográfica del conductor',
     example: { type: 'Point', coordinates: [-74.5, 40.0] },
     required: true,

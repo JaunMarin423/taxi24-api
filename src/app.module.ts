@@ -5,6 +5,7 @@ import { UserModule } from './modules/user/user.module';
 import { ViajeModule } from './modules/viaje/viaje.module';
 import { ConductorModule } from './modules/conductor/conductor.module';
 import { FacturaModule } from './modules/factura/factura.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FacturaModule } from './modules/factura/factura.module';
     ViajeModule,
     ConductorModule,
     FacturaModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],

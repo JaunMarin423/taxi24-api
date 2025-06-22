@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Viaje } from '@domain/entities/viaje.entity';
+import { Viaje } from '../../../domain/entities/viaje.entity';
 import { Factura } from '../../factura/entities/factura.entity';
 
 export class CompletarViajeResponseDto {

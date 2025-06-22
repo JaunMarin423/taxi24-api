@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsArray, ArrayMinSize, ArrayMaxSize, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsArray, ArrayMinSize, ArrayMaxSize, IsNumber, IsEmail } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { VehiculoDto } from './vehiculo.dto';
@@ -27,8 +27,11 @@ export class CrearConductorDto {
   @IsNotEmpty({ message: 'El nombre es requerido' })
   nombre!: string;
 
-  @ApiProperty({ description: 'Email del conductor' })
-  @IsString()
+  @ApiProperty({ 
+    description: 'Email del conductor', 
+    example: 'correo@ejemplo.com' 
+  })
+  @IsEmail({}, { message: 'El formato del email no es válido' })
   @IsNotEmpty({ message: 'El email es requerido' })
   email!: string;
 

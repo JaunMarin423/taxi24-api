@@ -1,8 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Conductor } from 'src/domain/entities/conductor.entity';
-import { ConductorRepository } from 'src/domain/repositories/conductor.repository';
-import { Ubicacion } from 'src/domain/value-objects/ubicacion.value-object';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Conductor as ConductorSchema } from '../schemas/conductor.schema';
+import { Conductor as ConductorEntity } from '../../../domain/entities/conductor.entity';
+import { ConductorRepository } from '../../../domain/repositories/conductor.repository';
+import { Ubicacion } from '../../../domain/value-objects/ubicacion.value-object';
 import { CrearConductorDto } from '../dtos/crear-conductor.dto';
+import { ConductorMapper } from '../mappers/conductor.mapper';
 
 @Injectable()
 export class ConductorService {
@@ -11,24 +13,31 @@ export class ConductorService {
     private readonly conductorRepository: ConductorRepository,
   ) {}
 
-  async obtenerTodos(): Promise<Conductor[]> {
-    return this.conductorRepository.obtenerTodos();
+  async obtenerTodos(): Promise<ConductorEntity[]> {
+    const conductores = await this.conductorRepository.obtenerTodos();
+    return conductores.map((conductor) => ConductorMapper.toEntity(conductor as any));
   }
 
-  async obtenerDisponibles(): Promise<Conductor[]> {
-    return this.conductorRepository.obtenerDisponibles();
+  async obtenerDisponibles(): Promise<ConductorEntity[]> {
+    const conductores = await this.conductorRepository.obtenerDisponibles();
+    return conductores.map((conductor) => ConductorMapper.toEntity(conductor as any));
   }
 
-  async obtenerCercanos(lat: number, lng: number, distancia: number = 5000): Promise<Conductor[]> {
+  async obtenerCercanos(lat: number, lng: number, distancia: number = 5000): Promise<ConductorEntity[]> {
     const ubicacion = new Ubicacion(lat, lng);
-    return this.conductorRepository.obtenerCercanos(ubicacion, distancia);
+    const conductores = await this.conductorRepository.obtenerCercanos(ubicacion, distancia);
+    return conductores.map((conductor) => ConductorMapper.toEntity(conductor as any));
   }
 
-  async obtenerPorId(id: string): Promise<Conductor | null> {
-    return this.conductorRepository.obtenerPorId(id);
+  async obtenerPorId(id: string): Promise<ConductorEntity | null> {
+    const conductor = await this.conductorRepository.obtenerPorId(id);
+    if (!conductor) {
+      throw new NotFoundException(`Conductor con ID "${id}" no encontrado`);
+    }
+    return ConductorMapper.toEntity(conductor as any);
   }
 
-  async crear(crearConductorDto: CrearConductorDto): Promise<Conductor> {
+  async crear(crearConductorDto: CrearConductorDto): Promise<ConductorEntity> {
     try {
       // Validar que las coordenadas sean números
       const [longitud, latitud] = crearConductorDto.ubicacion.coordinates;
@@ -37,47 +46,30 @@ export class ConductorService {
         throw new Error('Las coordenadas deben ser números válidos');
       }
       
-      console.log('Creando ubicación con datos:', {
-        latitud,
-        longitud,
-        type: 'Point'
-      });
-      
       const ubicacion = new Ubicacion(latitud, longitud);
       
-      console.log('Ubicación creada:', {
-        type: 'Point',
-        coordinates: [longitud, latitud]
-      });
-      
-      // Crear un conductor sin ID para que MongoDB lo genere automáticamente
-      const conductor = new Conductor(
-        '', // ID vacío para nuevo conductor
+      // Crear una nueva entidad de conductor
+      const conductor = new ConductorEntity(
+        '', // ID será generado por MongoDB
         crearConductorDto.nombre,
         crearConductorDto.email,
         crearConductorDto.telefono,
         ubicacion,
-        crearConductorDto.disponible,
+        crearConductorDto.disponible ?? true, // Valor por defecto: true
         crearConductorDto.licencia,
-        { 
+        {
           placa: crearConductorDto.vehiculo.placa,
           modelo: crearConductorDto.vehiculo.modelo,
           color: crearConductorDto.vehiculo.color
         }
       );
 
-      console.log('Conductor a guardar:', {
-        ...conductor,
-        ubicacion: {
-          type: 'Point',
-          coordinates: [conductor.ubicacion['longitud'], conductor.ubicacion['latitud']]
-        }
-      });
-
-      // Guardar el conductor y devolver el resultado
-      const resultado = await this.conductorRepository.guardar(conductor);
-      console.log('Resultado de guardar conductor:', resultado);
-      return resultado;
+      // Convertir a esquema de MongoDB y guardar
+      const conductorSchema = ConductorMapper.toSchema(conductor);
+      const resultado = await this.conductorRepository.guardar(conductorSchema as any);
+      
+      // Convertir el resultado de vuelta a entidad
+      return ConductorMapper.toEntity(resultado as any);
     } catch (error) {
       console.error('Error en ConductorService.crear:', error);
       throw error;
