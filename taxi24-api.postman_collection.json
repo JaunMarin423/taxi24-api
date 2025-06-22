@@ -275,9 +275,6 @@
 				{
 					"name": "Completar un viaje",
 					"request": {
-						"auth": {
-							"type": "inherit"
-						},
 						"method": "PATCH",
 						"header": [
 							{
@@ -287,7 +284,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"distanciaKm\": 5.3,\n    \"duracionMinutos\": 15\n}",
+							"raw": "{\n    \"costo\": 25.5,\n    \"distancia\": 5.3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -318,9 +315,6 @@
 				{
 					"name": "Crear un nuevo usuario (pasajero)",
 					"request": {
-						"auth": {
-							"type": "inherit"
-						},
 						"method": "POST",
 						"header": [
 							{
@@ -330,7 +324,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Juan Pérez\",\n    \"email\": \"juan@example.com\",\n    \"password\": \"password123\",\n    \"telefono\": \"+1234567890\",\n    \"ubicacion\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -74.006,\n            40.7128\n        ]\n    }\n}",
+							"raw": "{\n    \"name\": \"Ivonne Maritza\",\n    \"email\": \"ivonne@example.com\",\n    \"password\": \"password123\",\n    \"telefono\": \"+1234567890\",\n    \"ubicacion\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -74.006,\n            40.7128\n        ]\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -338,14 +332,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/users",
+							"raw": "http://localhost:3000/pasajeros",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"users"
+								"pasajeros"
 							]
 						}
 					},
@@ -354,20 +348,17 @@
 				{
 					"name": "Obtener todos los usuarios",
 					"request": {
-						"auth": {
-							"type": "inherit"
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/users",
+							"raw": "http://localhost:3000/pasajeros",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"users"
+								"pasajeros"
 							]
 						}
 					},
@@ -376,21 +367,18 @@
 				{
 					"name": "Obtener un usuario por ID",
 					"request": {
-						"auth": {
-							"type": "inherit"
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/users/USER_ID",
+							"raw": "http://localhost:3000/pasajeros/68583d05da0989d19e864afe",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"users",
-								"USER_ID"
+								"pasajeros",
+								"68583d05da0989d19e864afe"
 							]
 						}
 					},

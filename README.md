@@ -413,10 +413,6 @@ Para ejecutar las pruebas unitarias:
 npm test
 ```
 
-Para pruebas de integración:
-```bash
-npm run test:e2e
-```
 
 ## Comandos Útiles
 
