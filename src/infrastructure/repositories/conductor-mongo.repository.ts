@@ -157,22 +157,31 @@ export class ConductorMongoRepository implements ConductorRepository {
         return resultado;
       } else {
         console.log('Creando nuevo conductor');
-        const nuevoConductor = new this.conductorModel(conductorDataToSave);
-        console.log('Nuevo conductor antes de guardar:', nuevoConductor);
+        
+        // Create a new document instance and save it
+        const nuevoConductor = new this.conductorModel({
+          ...conductorDataToSave,
+          _id: new Types.ObjectId()  // Explicitly set a new ObjectId
+        });
         
         const conductorGuardado = await nuevoConductor.save();
         console.log('Conductor guardado en MongoDB:', conductorGuardado);
         
-        // Crear y devolver una nueva instancia de Conductor con el ID generado
+        // Map the saved document back to domain model
+        const ubicacion = new Ubicacion(
+          conductorGuardado.ubicacion.coordinates[1],
+          conductorGuardado.ubicacion.coordinates[0]
+        );
+        
         const resultado = new Conductor(
           conductorGuardado._id.toString(),
-          conductor.nombre,
-          conductor.email,
-          conductor.telefono,
-          conductor.ubicacion,
-          conductor.disponible,
-          conductor.licencia,
-          conductor.vehiculo
+          conductorGuardado.nombre,
+          conductorGuardado.email,
+          conductorGuardado.telefono,
+          ubicacion,
+          conductorGuardado.disponible,
+          conductorGuardado.licencia,
+          conductorGuardado.vehiculo
         );
         
         console.log('Nueva instancia de Conductor creada:', resultado);

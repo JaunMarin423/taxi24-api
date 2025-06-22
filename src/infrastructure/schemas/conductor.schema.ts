@@ -35,8 +35,7 @@ export class VehiculoSchema {
 
 @Schema({ timestamps: true })
 export class Conductor {
-  @Prop({ type: Types.ObjectId, auto: true })
-  _id: Types.ObjectId = new Types.ObjectId();
+  _id: Types.ObjectId;
 
   @Prop({ required: true })
   nombre: string = '';
@@ -76,6 +75,7 @@ export class Conductor {
   updatedAt: Date = new Date();
 
   constructor() {
+    this._id = new Types.ObjectId();
     this.nombre = '';
     this.email = '';
     this.telefono = '';
