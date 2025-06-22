@@ -68,10 +68,10 @@ describe('App (e2e)', () => {
   });
 
   describe('Passengers', () => {
-    it('GET /pasajeros should return 200 and an array of passengers', async () => {
+    it('GET /users should return 200 and an array of passengers', async () => {
       try {
         const response = await request(app.getHttpServer())
-          .get('/pasajeros')
+          .get('/users')
           .expect(200);
           
         expect(Array.isArray(response.body)).toBe(true);

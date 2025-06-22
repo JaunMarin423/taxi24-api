@@ -387,8 +387,6 @@ export class UserController {
         error: 'Bad Request'
       }
     }
-    status: 400, 
-    description: 'Parámetros de ubicación inválidos'
   })
   async findNearbyDrivers(
     @Query('latitud', ParseFloatPipe) latitud: number,
