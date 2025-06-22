@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { CrearViajeUseCase, CrearViajeParams } from '../../../domain/use-cases/crear-viaje.use-case';
 import { ViajeRepository } from '../../../domain/repositories/viaje.repository';
 import { Viaje } from '../../../domain/entities/viaje.entity';
 import { CompletarViajeDto } from '../dto/completar-viaje.dto';
+import { FacturaService } from '../../factura/services/factura.service';
 
 @Injectable()
 export class ViajeService {
   constructor(
     @Inject('ViajeRepository') private viajeRepository: ViajeRepository,
     private crearViajeUseCase: CrearViajeUseCase,
+    @Inject(forwardRef(() => FacturaService))
+    private facturaService: FacturaService,
   ) {}
 
   async crearViaje(data: CrearViajeParams) {
@@ -39,7 +42,7 @@ export class ViajeService {
     return this.viajeRepository.actualizar(viaje);
   }
 
-  async completarViaje(id: string, completarViajeDto: CompletarViajeDto): Promise<Viaje> {
+  async completarViaje(id: string, completarViajeDto: CompletarViajeDto): Promise<{ viaje: Viaje; factura: any }> {
     const viaje = await this.viajeRepository.obtenerPorId(id);
     
     if (!viaje) {
@@ -50,7 +53,13 @@ export class ViajeService {
       // Usar el método del dominio para completar el viaje
       viaje.completar();
       
-      return this.viajeRepository.actualizar(viaje);
+      // Actualizar el viaje en la base de datos
+      const viajeActualizado = await this.viajeRepository.actualizar(viaje);
+      
+      // Generar factura automáticamente
+      const factura = await this.facturaService.generarFactura(viajeActualizado);
+      
+      return { viaje: viajeActualizado, factura };
       
     } catch (error: any) {
       throw new BadRequestException(error, error.message);

@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './modules/user/user.module';
 import { ViajeModule } from './modules/viaje/viaje.module';
 import { ConductorModule } from './modules/conductor/conductor.module';
+import { FacturaModule } from './modules/factura/factura.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ConductorModule } from './modules/conductor/conductor.module';
     UserModule,
     ViajeModule,
     ConductorModule,
+    FacturaModule,
   ],
   controllers: [],
   providers: [],

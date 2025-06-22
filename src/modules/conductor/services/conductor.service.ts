@@ -30,17 +30,25 @@ export class ConductorService {
 
   async crear(crearConductorDto: CrearConductorDto): Promise<Conductor> {
     try {
+      // Validar que las coordenadas sean números
+      const [longitud, latitud] = crearConductorDto.ubicacion.coordinates;
+      
+      if (isNaN(latitud) || isNaN(longitud)) {
+        throw new Error('Las coordenadas deben ser números válidos');
+      }
+      
       console.log('Creando ubicación con datos:', {
-        latitud: crearConductorDto.ubicacion.latitud,
-        longitud: crearConductorDto.ubicacion.longitud
+        latitud,
+        longitud,
+        type: 'Point'
       });
       
-      const ubicacion = new Ubicacion(
-        crearConductorDto.ubicacion.latitud,
-        crearConductorDto.ubicacion.longitud
-      );
+      const ubicacion = new Ubicacion(latitud, longitud);
       
-      console.log('Ubicación creada:', ubicacion);
+      console.log('Ubicación creada:', {
+        type: 'Point',
+        coordinates: [longitud, latitud]
+      });
       
       // Crear un conductor sin ID para que MongoDB lo genere automáticamente
       const conductor = new Conductor(
@@ -52,17 +60,17 @@ export class ConductorService {
         crearConductorDto.disponible,
         crearConductorDto.licencia,
         { 
-          placa: crearConductorDto.vehiculo, 
-          modelo: 'No especificado', 
-          color: 'No especificado' 
+          placa: crearConductorDto.vehiculo.placa,
+          modelo: crearConductorDto.vehiculo.modelo,
+          color: crearConductorDto.vehiculo.color
         }
       );
 
       console.log('Conductor a guardar:', {
         ...conductor,
         ubicacion: {
-          latitud: conductor.ubicacion['latitud'],
-          longitud: conductor.ubicacion['longitud']
+          type: 'Point',
+          coordinates: [conductor.ubicacion['longitud'], conductor.ubicacion['latitud']]
         }
       });
 

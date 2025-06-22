@@ -14,6 +14,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ViajeService } from '../services/viaje.service';
 import { CompletarViajeDto } from '../dto/completar-viaje.dto';
+import { CompletarViajeResponseDto } from '../dto/completar-viaje-response.dto';
 import { CrearViajeDto } from '../dtos/crear-viaje.dto';
 import { CrearViajeParams } from '../../../domain/use-cases/crear-viaje.use-case';
 
@@ -116,15 +117,20 @@ export class ViajeController {
 
   @Patch(':id/completar')
   @ApiOperation({ summary: 'Completar un viaje existente' })
-  @ApiResponse({ status: 200, description: 'Viaje completado exitosamente' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Viaje completado exitosamente y factura generada',
+    type: CompletarViajeResponseDto
+  })
   @ApiResponse({ status: 400, description: 'No se puede completar el viaje' })
   @ApiResponse({ status: 404, description: 'Viaje no encontrado' })
   async completarViaje(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() completarViajeDto: CompletarViajeDto
-  ) {
+  ): Promise<CompletarViajeResponseDto> {
     try {
-      return await this.viajeService.completarViaje(id, completarViajeDto);
+      const { viaje, factura } = await this.viajeService.completarViaje(id, completarViajeDto);
+      return new CompletarViajeResponseDto(viaje, factura);
     } catch (error: any) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
