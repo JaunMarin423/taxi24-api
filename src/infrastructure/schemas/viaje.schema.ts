@@ -17,8 +17,8 @@ export type ViajeDocument = Viaje & Document & {
 })
 export class Viaje {
 
-  @Prop({ type: String, required: true })
-  idConductor!: string;
+  @Prop({ type: String, required: false, default: null })
+  idConductor: string | null = null;
 
   @Prop({ type: String, required: true })
   idPasajero!: string;

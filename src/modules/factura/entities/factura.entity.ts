@@ -4,7 +4,7 @@ export class Factura {
   public readonly id: string;
   public readonly viajeId: string;
   public readonly pasajeroId: string;
-  public readonly conductorId: string;
+  public readonly conductorId: string | null;
   public readonly monto: number;
   public readonly fechaEmision: Date;
   public readonly fechaViaje: Date;

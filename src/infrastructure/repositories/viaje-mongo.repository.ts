@@ -15,31 +15,61 @@ export class ViajeMongoRepository implements ViajeRepository {
   private toDomain(viajeDoc: ViajeDocument | null): ViajeEntity | null {
     if (!viajeDoc) return null;
     
-    // Convert MongoDB _id to string for the domain entity
-    const viajeId = viajeDoc._id.toString();
-    
-    return new ViajeEntity(
-      viajeId,
-      viajeDoc.idConductor,
-      viajeDoc.idPasajero,
-      viajeDoc.origen,
-      viajeDoc.destino,
-      viajeDoc.estado as EstadoViaje,
-      new Date(viajeDoc.fechaInicio),
-      viajeDoc.fechaFin ? new Date(viajeDoc.fechaFin) : undefined,
-      viajeDoc.monto
-    );
+    try {
+      // Convert MongoDB _id to string for the domain entity
+      const viajeId = viajeDoc._id ? viajeDoc._id.toString() : null;
+      
+      if (!viajeId) {
+        throw new Error('El viaje no tiene un ID válido');
+      }
+      
+      return new ViajeEntity(
+        viajeId,
+        viajeDoc.idConductor || null,
+        viajeDoc.idPasajero,
+        viajeDoc.origen,
+        viajeDoc.destino,
+        viajeDoc.estado as EstadoViaje,
+        new Date(viajeDoc.fechaInicio),
+        viajeDoc.fechaFin ? new Date(viajeDoc.fechaFin) : undefined,
+        viajeDoc.monto
+      );
+    } catch (error) {
+      console.error('Error converting document to domain:', error);
+      console.error('Problematic document:', JSON.stringify(viajeDoc, null, 2));
+      return null;
+    }
   }
 
   async crearViaje(viaje: ViajeEntity): Promise<ViajeEntity> {
-    const createdViaje = new this.viajeModel({
-      _id: viaje.id, // Set _id explicitly
-      ...viaje
-    });
-    const saved = await createdViaje.save();
-    const result = this.toDomain(saved);
-    if (!result) throw new Error('Error al crear el viaje');
-    return result;
+    try {
+      // Create the trip data without explicitly setting _id to let MongoDB handle it
+      const tripData = {
+        idConductor: viaje.idConductor,
+        idPasajero: viaje.idPasajero,
+        origen: viaje.origen,
+        destino: viaje.destino,
+        estado: viaje.estado,
+        fechaInicio: viaje.fechaInicio,
+        fechaFin: viaje.fechaFin,
+        monto: viaje.monto
+      };
+      
+      console.log('Saving trip to MongoDB:', JSON.stringify(tripData, null, 2));
+      
+      const createdViaje = new this.viajeModel(tripData);
+      const saved = await createdViaje.save();
+      
+      console.log('Trip saved successfully:', saved);
+      
+      const result = this.toDomain(saved);
+      if (!result) throw new Error('Error al crear el viaje');
+      return result;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al crear el viaje';
+      console.error('Error in crearViaje:', error);
+      throw new Error(`Error al crear el viaje: ${errorMessage}`);
+    }
   }
 
   async obtenerPorId(id: string): Promise<ViajeEntity | null> {

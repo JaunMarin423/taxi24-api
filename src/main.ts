@@ -37,29 +37,64 @@ async function bootstrap() {
     .setTitle('🚕 API Taxi24')
     .setDescription(
       `## 📋 Descripción General
-      \nAPI para el sistema de transporte Taxi24 que permite la gestión de conductores, pasajeros, viajes y facturas.
-      \n### Características Principales
-- Gestión de conductores y vehículos
-- Registro y gestión de pasajeros
-- Sistema de seguimiento de viajes en tiempo real
-- Generación automática de facturas
-- Búsqueda de conductores cercanos
-\n### Códigos de Estado
-- 200: OK - La petición fue exitosa
-- 201: Creado - Recurso creado exitosamente
-- 400: Solicitud incorrecta - Error en la validación de datos
-- 404: No encontrado - El recurso solicitado no existe
-- 500: Error del servidor - Ocurrió un error inesperado`
+      \nAPI para el sistema de transporte Taxi24 que permite la gestión de conductores, pasajeros, viajes y facturas, siguiendo los principios de Clean Architecture.
+      
+      ### 🔧 Características Principales
+      - Gestión completa de conductores y vehículos
+      - Registro y gestión de pasajeros
+      - Sistema de seguimiento de viajes en tiempo real
+      - Generación automática de facturas
+      - Búsqueda de conductores cercanos (hasta 3km de radio)
+      - Documentación interactiva con Swagger
+      
+      ### 🛠️ Tecnologías Utilizadas
+      - **Backend**: NestJS con TypeScript
+      - **Base de Datos**: MongoDB con Mongoose
+      - **Autenticación**: JWT (JSON Web Tokens)
+      - **Documentación**: Swagger/OpenAPI
+      - **Testing**: Jest con cobertura de código
+      
+      ### 📊 Códigos de Estado
+      | Código | Descripción |
+      |--------|-------------|
+      | 200 | OK - La petición fue exitosa |
+      | 201 | Creado - Recurso creado exitosamente |
+      | 400 | Solicitud incorrecta - Error en la validación de datos |
+      | 401 | No autorizado - Se requiere autenticación |
+      | 403 | Prohibido - No tiene permisos para acceder al recurso |
+      | 404 | No encontrado - El recurso solicitado no existe |
+      | 500 | Error del servidor - Ocurrió un error inesperado |
+      
+      ### 📚 Documentación Adicional
+      - [Guía de inicio rápido](#)
+      - [Referencia de la API](#)
+      - [Ejemplos de código](#)`
     )
-    .setVersion('1.0.0')
+    .setVersion('1.1.0')
     .setContact(
-      'Equipo de Soporte',
+      'Equipo de Soporte Taxi24',
       'https://taxi24.com/soporte',
       'soporte@taxi24.com'
     )
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addServer('http://localhost:3000', 'Servidor de Desarrollo')
-    .addTag('Conductores', 'Operaciones relacionadas con conductores')
-    .addTag('Facturas', 'Operaciones relacionadas con facturas')
+    .addServer('https://api.taxi24.com', 'Producción')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Ingrese el token JWT',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth()
+    )
+    .addTag('Conductores', 'Operaciones relacionadas con conductores y vehículos')
+    .addTag('Viajes', 'Gestión de viajes y seguimiento en tiempo real')
+    .addTag('Facturas', 'Generación y consulta de facturas')
+    .addTag('Pasajeros', 'Gestión de usuarios pasajeros')
+    .addTag('Autenticación', 'Autenticación y autorización de usuarios')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

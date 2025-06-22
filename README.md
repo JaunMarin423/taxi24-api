@@ -46,8 +46,8 @@ src/
 
 ## Requisitos Previos
 
-- Node.js (v16 o superior)
-- npm o yarn
+- Node.js (v18 o superior)
+- npm (v9 o superior) o yarn
 - MongoDB (local o Atlas)
 - [NestJS CLI](https://docs.nestjs.com/cli/overview) (opcional):
   ```bash
@@ -86,14 +86,33 @@ La API estará disponible en:
 
 ## 🧪 Ejecución de Pruebas
 
-El proyecto incluye pruebas unitarias y de integración para garantizar la calidad del código. A continuación, se detalla cómo ejecutar las pruebas y verificar la cobertura de código.
+El proyecto incluye pruebas unitarias, de integración y pruebas E2E para garantizar la calidad del código. La configuración de pruebas utiliza Jest con soporte para TypeScript.
 
-### Ejecutar Todas las Pruebas
+### Configuración de Pruebas
+
+El proyecto incluye los siguientes archivos de configuración de Jest:
+- `jest.config.js` - Configuración principal de Jest
+- `jest-e2e.json` - Configuración para pruebas E2E
+- `jest.setup.js` - Configuración global de pruebas
+- `jest.global-setup.js` - Configuración de entorno para pruebas
+- `jest.global-teardown.js` - Limpieza después de las pruebas
+
+### Comandos de Prueba
 
 Para ejecutar todas las pruebas del proyecto:
 
 ```bash
 npm test
+```
+
+Para ejecutar pruebas con cobertura de código:
+```bash
+npm test -- --coverage
+```
+
+Para ejecutar pruebas específicas (ej: solo controladores):
+```bash
+npm test -- "**/*.controller.spec.ts"
 ```
 
 ### Ejecutar Pruebas con Cobertura
@@ -169,15 +188,72 @@ Estos umbrales se pueden ajustar en el archivo `jest.config.js` si es necesario.
 
 ## 📚 Documentación de la API
 
-### Documentación Interactiva
-La documentación interactiva de la API está disponible en Swagger UI cuando el servidor está en ejecución:
+### 📚 Documentación de la API
 
+La documentación interactiva de la API está disponible en:
 ```
 http://localhost:3000/api
 ```
 
+### Características de la Documentación
+
+- Documentación interactiva generada con Swagger/OpenAPI
+- Esquemas de solicitud/respuesta
+- Códigos de estado HTTP
+- Ejemplos de solicitudes
+- Filtrado y búsqueda de endpoints
+
+### Estructura de la API
+
+La API sigue los principios RESTful y está organizada en los siguientes grupos de endpoints:
+
+- **Conductores**: Gestión de conductores y disponibilidad
+- **Viajes**: Creación, seguimiento y finalización de viajes
+- **Facturas**: Generación y consulta de facturas
+- **Pasajeros**: Gestión de usuarios pasajeros
+
 ### Colección de Postman
+
 Hemos preparado una colección de Postman para facilitar las pruebas de la API. Puedes importar el archivo `taxi24-api.postman_collection.json` en tu cliente de Postman para obtener acceso inmediato a todos los endpoints configurados.
+
+### Códigos de Estado
+
+La API utiliza los siguientes códigos de estado HTTP:
+
+- `200 OK`: La solicitud se ha completado con éxito
+- `201 Created`: Recurso creado exitosamente
+- `400 Bad Request`: Error en la validación de datos
+- `401 Unauthorized`: Autenticación requerida
+- `403 Forbidden`: Permisos insuficientes
+- `404 Not Found`: Recurso no encontrado
+- `500 Internal Server Error`: Error del servidor
+
+### Ejemplo de Uso
+
+```http
+GET /api/conductores/disponibles HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+```
+
+```json
+{
+  "statusCode": 200,
+  "message": "Conductores disponibles obtenidos exitosamente",
+  "data": [
+    {
+      "id": "60d5ec9f3000000000000001",
+      "nombre": "Juan Pérez",
+      "email": "juan@example.com",
+      "disponible": true,
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [-74.5, 40.0]
+      }
+    }
+  ]
+}
+```
 
 #### Cómo importar la colección:
 1. Abre Postman

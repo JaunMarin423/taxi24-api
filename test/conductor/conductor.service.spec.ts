@@ -179,17 +179,80 @@ describe('ConductorService', () => {
     };
 
     it('should create a new conductor', async () => {
-      // Mock the mapper to return the expected entity
-      (ConductorMapper.toEntity as jest.Mock).mockReturnValue(mockConductor);
+      // Create a mock conductor that will be returned by the mapper
+      const mockCreatedConductor = new ConductorEntity(
+        '1',
+        crearDto.nombre,
+        crearDto.email,
+        crearDto.telefono,
+        new Ubicacion(crearDto.ubicacion.coordinates[1], crearDto.ubicacion.coordinates[0]),
+        crearDto.disponible,
+        crearDto.licencia,
+        crearDto.vehiculo
+      );
+
+      // Mock the mapper to return our mock conductor
+      (ConductorMapper.toEntity as jest.Mock).mockReturnValue(mockCreatedConductor);
       
-      // Return the schema version from the repository
-      conductorRepository.guardar.mockResolvedValue(mockConductorSchema);
+      // Mock the repository to return the saved schema
+      conductorRepository.guardar.mockImplementation(async (conductor) => {
+        // Create a new ConductorEntity with the same properties
+        const savedConductor = new ConductorEntity(
+          '1',
+          conductor.nombre,
+          conductor.email,
+          conductor.telefono,
+          conductor.ubicacion,
+          conductor.disponible,
+          conductor.licencia,
+          conductor.vehiculo
+        );
+        
+        // Add the timestamps that would come from the database
+        (savedConductor as any).createdAt = new Date();
+        (savedConductor as any).updatedAt = new Date();
+        
+        return savedConductor;
+      });
       
+      // Call the service method
       const result = await service.crear(crearDto);
       
+      // Verify the repository was called
       expect(conductorRepository.guardar).toHaveBeenCalled();
-      expect(ConductorMapper.toEntity).toHaveBeenCalledWith(mockConductorSchema);
-      expect(result).toBe(mockConductor);
+      
+      // Get the argument that was passed to guardar
+      const savedConductor = conductorRepository.guardar.mock.calls[0][0] as ConductorEntity;
+      
+      // Verify the saved conductor has the correct data
+      expect(savedConductor.nombre).toBe(crearDto.nombre);
+      expect(savedConductor.email).toBe(crearDto.email);
+      expect(savedConductor.telefono).toBe(crearDto.telefono);
+      expect(savedConductor.licencia).toBe(crearDto.licencia);
+      
+      // Verify the result matches our expected conductor
+      expect(result).toBeDefined();
+      
+      // Create an expected result object without timestamps for comparison
+      const expectedResult = {
+        id: '1',
+        nombre: crearDto.nombre,
+        email: crearDto.email,
+        telefono: crearDto.telefono,
+        ubicacion: expect.any(Ubicacion),
+        disponible: true,
+        licencia: crearDto.licencia,
+        vehiculo: crearDto.vehiculo
+      };
+      
+      // Verify the result has all expected properties
+      expect(result).toMatchObject(expectedResult);
+      
+      // Verify the ubicacion is properly set
+      expect(result.ubicacion).toBeDefined();
+      expect(result.ubicacion.latitud).toBe(crearDto.ubicacion.coordinates[1]);
+      expect(result.ubicacion.longitud).toBe(crearDto.ubicacion.coordinates[0]);
+      expect(result.vehiculo).toBeDefined();
     });
 
     it('should throw error when coordinates are invalid', async () => {

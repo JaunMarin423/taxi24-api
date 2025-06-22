@@ -7,7 +7,7 @@ export type EstadoViaje = 'PENDIENTE' | 'EN_CURSO' | 'COMPLETADO' | 'CANCELADO';
 
 export class Viaje {
   public readonly id: string;
-  public readonly idConductor: string;
+  public readonly idConductor: string | null; // Can be null if not assigned
   public readonly idPasajero: string;
   public readonly origen: Ubicacion;
   public readonly destino: Ubicacion;
@@ -18,7 +18,7 @@ export class Viaje {
 
   constructor(
     id: string,
-    idConductor: string,
+    idConductor: string | null, // Accepts string or null
     idPasajero: string,
     origen: Ubicacion,
     destino: Ubicacion,
@@ -27,8 +27,15 @@ export class Viaje {
     fechaFin?: Date,
     monto?: number
   ) {
+    if (!id) {
+      throw new Error('ID is required');
+    }
+    if (!idPasajero) {
+      throw new Error('idPasajero is required');
+    }
+    
     this.id = id;
-    this.idConductor = idConductor;
+    this.idConductor = idConductor || null;
     this.idPasajero = idPasajero;
     this.origen = origen;
     this.destino = destino;

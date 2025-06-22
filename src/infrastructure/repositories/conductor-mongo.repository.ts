@@ -117,75 +117,51 @@ export class ConductorMongoRepository implements ConductorRepository {
   async guardar(conductor: Conductor): Promise<Conductor> {
     console.log('Iniciando guardar conductor en repositorio');
     try {
-      const { id, ...conductorData } = conductor;
+      // Extraer los datos del conductor
+      const { id, nombre, email, telefono, disponible, licencia, vehiculo, ubicacion } = conductor;
       
-      console.log('Datos del conductor a guardar:', {
-        id,
-        ...conductorData,
-        ubicacion: {
-          latitud: conductor.ubicacion.latitud,
-          longitud: conductor.ubicacion.longitud
-        }
-      });
-
-      const conductorDataToSave = {
-        ...conductorData,
+      // Preparar los datos para MongoDB
+      const conductorData = {
+        nombre,
+        email,
+        telefono,
+        disponible: disponible ?? true,
+        licencia,
+        vehiculo,
         ubicacion: {
           type: 'Point',
           coordinates: [
-            conductor.ubicacion.longitud,
-            conductor.ubicacion.latitud
-          ],
-        },
+            ubicacion.longitud,
+            ubicacion.latitud
+          ]
+        }
       };
 
-      console.log('Datos a guardar en MongoDB:', conductorDataToSave);
+      console.log('Datos a guardar en MongoDB:', JSON.stringify(conductorData, null, 2));
 
       if (id) {
+        // Actualizar conductor existente
         console.log('Actualizando conductor existente con ID:', id);
-        const conductorActualizado = await this.conductorModel
-          .findOneAndUpdate(
-            { _id: new Types.ObjectId(id) },
-            { $set: conductorDataToSave },
-            { new: true }
-          )
-          .exec();
+        const actualizado = await this.conductorModel.findByIdAndUpdate(
+          id,
+          conductorData,
+          { new: true, runValidators: true }
+        ).exec();
         
-        console.log('Conductor actualizado en MongoDB:', conductorActualizado);
-        const resultado = this.toDomain(conductorActualizado) || conductor;
-        console.log('Conductor convertido a dominio:', resultado);
-        return resultado;
+        if (!actualizado) {
+          throw new Error(`No se encontró el conductor con ID: ${id}`);
+        }
+        
+        console.log('Conductor actualizado en MongoDB:', actualizado);
+        return this.toDomain(actualizado) || conductor;
       } else {
+        // Crear nuevo conductor
         console.log('Creando nuevo conductor');
+        const nuevoConductor = new this.conductorModel(conductorData);
+        const guardado = await nuevoConductor.save();
         
-        // Create a new document instance and save it
-        const nuevoConductor = new this.conductorModel({
-          ...conductorDataToSave,
-          _id: new Types.ObjectId()  // Explicitly set a new ObjectId
-        });
-        
-        const conductorGuardado = await nuevoConductor.save();
-        console.log('Conductor guardado en MongoDB:', conductorGuardado);
-        
-        // Map the saved document back to domain model
-        const ubicacion = new Ubicacion(
-          conductorGuardado.ubicacion.coordinates[1],
-          conductorGuardado.ubicacion.coordinates[0]
-        );
-        
-        const resultado = new Conductor(
-          conductorGuardado._id.toString(),
-          conductorGuardado.nombre,
-          conductorGuardado.email,
-          conductorGuardado.telefono,
-          ubicacion,
-          conductorGuardado.disponible,
-          conductorGuardado.licencia,
-          conductorGuardado.vehiculo
-        );
-        
-        console.log('Nueva instancia de Conductor creada:', resultado);
-        return resultado;
+        console.log('Conductor guardado en MongoDB:', guardado);
+        return this.toDomain(guardado) || conductor;
       }
     } catch (error: any) {
       console.error('Error en guardar conductor:', {

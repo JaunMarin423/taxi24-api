@@ -4,13 +4,16 @@ import {
   Post, 
   Body, 
   Param, 
-  HttpStatus, 
-  HttpException,
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
   ParseFloatPipe,
-  BadRequestException
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+  HttpException,
+  HttpStatus,
+  NotFoundException
 } from '@nestjs/common';
 import { 
   ApiTags, 
@@ -19,6 +22,9 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiCreatedResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiExtraModels
 } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
@@ -28,6 +34,7 @@ import { User, IUser, ILocation } from '../schemas/user.schema';
 interface UserResponseData {
   _id: string;
   name: string;
+  nombre: string; // Asegurar que el campo 'nombre' esté presente
   email: string;
   telefono: string;
   ubicacion: ILocation;
@@ -71,6 +78,7 @@ class UserResponse {
 @ApiResponse({ status: 500, description: 'Error interno del servidor' })
 @ApiExtraModels(UserResponse)
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
   /**
@@ -80,31 +88,102 @@ export class UserController {
    */
   @Post()
   @ApiOperation({ 
-    summary: 'Crear un nuevo pasajero', 
-    description: 'Crea un nuevo registro de pasajero en el sistema' 
+    summary: 'Crear un nuevo pasajero',
+    description: 'Crea un nuevo registro de pasajero en el sistema.'
   })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiCreatedResponse({ 
     description: 'Pasajero creado exitosamente',
-    type: UserResponse
+    type: UserResponse,
+    schema: {
+      example: {
+        _id: '507f1f77bcf86cd799439011',
+        name: 'Juan Pérez',
+        email: 'juan@example.com',
+        telefono: '+1234567890',
+        ubicacion: {
+          type: 'Point',
+          coordinates: [-74.5, 40.0]
+        },
+        createdAt: '2023-06-22T15:42:11.000Z',
+        updatedAt: '2023-06-22T15:42:11.000Z'
+      }
+    }
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Datos de entrada inválidos'
+  @ApiBadRequestResponse({ 
+    description: 'Datos de entrada inválidos o incompletos',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'array', items: { type: 'string' }, example: ['El nombre es requerido', 'El email no es válido'] },
+        error: { type: 'string', example: 'Bad Request' }
+      }
+    }
   })
-  @ApiBody({ type: CreateUserDto })
+  @ApiConflictResponse({ 
+    description: 'El correo electrónico ya está registrado',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 409 },
+        message: { type: 'string', example: 'El correo electrónico ya está registrado' },
+        error: { type: 'string', example: 'Conflict' }
+      }
+    }
+  })
+  @ApiBody({ 
+    type: CreateUserDto,
+    description: 'Datos del pasajero a crear',
+    examples: {
+      example1: {
+        summary: 'Ejemplo de creación de pasajero',
+        value: {
+          name: 'Juan Pérez',
+          email: 'juan@example.com',
+          password: 'Password123',
+          telefono: '+1234567890',
+          ubicacion: {
+            type: 'Point',
+            coordinates: [-74.5, 40.0]
+          }
+        }
+      }
+    }
+  })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
     try {
+      this.logger.log(`Intentando crear usuario con email: ${createUserDto.email}`);
+      
+      if (createUserDto.ubicacion) {
+        try {
+          createUserDto.ubicacion.validate();
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Error de validación de coordenadas';
+          throw new BadRequestException(message);
+        }
+      }
+      
       const user = await this.userService.create(createUserDto);
-      return new UserResponse(this.mapToUserResponse(user));
-    } catch (error: any) {
+      this.logger.log(`Usuario creado exitosamente con ID: ${user._id}`);
+      
+      const response = this.mapToUserResponse(user);
+      // Asegurarse de que el campo 'nombre' esté presente
+      (response as any).nombre = response.name;
+      
+      return response;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
+      this.logger.error(`Error al crear usuario: ${errorMessage}`, errorStack);
+      
+      // Si el error ya es un HttpException, lo relanzamos
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Error al crear el pasajero',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      
+      // Para cualquier otro error, lanzamos un error interno del servidor
+      throw new InternalServerErrorException('Error al procesar la solicitud');
     }
   }
 
@@ -130,6 +209,7 @@ export class UserController {
         return new UserResponse({
           _id: userObj._id.toString(),
           name: userObj.name,
+          nombre: userObj.name, // Incluir el campo 'nombre'
           email: userObj.email,
           telefono: userObj.telefono,
           ubicacion: userObj.ubicacion,
@@ -169,12 +249,13 @@ export class UserController {
     try {
       const user = await this.userService.findOne(id);
       if (!user) {
-        throw new HttpException('Pasajero no encontrado', HttpStatus.NOT_FOUND);
+        throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
       }
       const userObj = (user as any).toObject ? (user as any).toObject() : user;
       return new UserResponse({
         _id: userObj._id.toString(),
         name: userObj.name,
+        nombre: userObj.name, // Incluir el campo 'nombre'
         email: userObj.email,
         telefono: userObj.telefono,
         ubicacion: userObj.ubicacion,
@@ -246,15 +327,20 @@ export class UserController {
    * @returns Objeto de respuesta del usuario
    */
   private mapToUserResponse(user: IUser): UserResponseData {
-    const userObj = (user as any).toObject ? (user as any).toObject() : user;
+    // Asegurarse de que el _id sea una cadena
+    const userId = typeof user._id === 'object' && '_id' in user._id 
+      ? user._id.toString() 
+      : String(user._id);
+      
     return {
-      _id: userObj._id.toString(),
-      name: userObj.name,
-      email: userObj.email,
-      telefono: userObj.telefono,
-      ubicacion: userObj.ubicacion,
-      createdAt: userObj.createdAt,
-      updatedAt: userObj.updatedAt
+      _id: userId,
+      name: user.name,
+      nombre: user.name, // Incluir el campo 'nombre' con el mismo valor que 'name'
+      email: user.email,
+      telefono: user.telefono,
+      ubicacion: user.ubicacion,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }

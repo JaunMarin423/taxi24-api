@@ -4,8 +4,8 @@ import { UserService } from '../../src/modules/user/services/user.service';
 import { CreateUserDto, UbicacionDto } from '../../src/modules/user/dtos/create-user.dto';
 import { plainToInstance } from 'class-transformer';
 
-// Interface to match the controller's response structure
-interface IUserResponse {
+// Local copy of UserResponse class since it's not exported
+class UserResponse {
   _id: string;
   name: string;
   nombre: string;
@@ -17,6 +17,17 @@ interface IUserResponse {
   };
   createdAt: Date;
   updatedAt: Date;
+
+  constructor(user: any) {
+    this._id = user._id;
+    this.name = user.name;
+    this.nombre = user.name; // Map name to nombre
+    this.email = user.email;
+    this.telefono = user.telefono;
+    this.ubicacion = user.ubicacion;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
+  }
 }
 
 describe('UserController', () => {
@@ -61,6 +72,22 @@ describe('UserController', () => {
     updatedAt: now
   };
 
+  // Create the expected response object with both name and nombre
+  const mockUserResponse = new UserResponse({
+    _id: '1',
+    name: 'Test User',
+    email: 'user@test.com',
+    telefono: '+1234567890',
+    ubicacion: {
+      type: 'Point',
+      coordinates: [-74.5, 40]
+    },
+    createdAt: now,
+    updatedAt: now
+  });
+  
+  // The response will include both name and nombre fields
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
@@ -96,17 +123,15 @@ describe('UserController', () => {
 
       const result = await controller.create(createDto);
       expect(service.create).toHaveBeenCalledWith(createDto);
-      
-      // Verify response structure
-      expect(result).toMatchObject({
-        _id: mockUser._id,
-        nombre: mockUser.name, // nombre should be mapped from name
-        email: mockUser.email,
-        telefono: mockUser.telefono,
-        ubicacion: mockUser.ubicacion
-      });
-      expect(new Date(result.createdAt).getTime()).toBeCloseTo(now.getTime(), -2);
-      expect(new Date(result.updatedAt).getTime()).toBeCloseTo(now.getTime(), -2);
+      // The response should be a UserResponse instance
+      expect(result).toBeInstanceOf(UserResponse);
+      expect(result._id).toBe(mockUserResponse._id);
+      expect(result.nombre).toBe(mockUserResponse.nombre);
+      expect(result.email).toBe(mockUserResponse.email);
+      expect(result.telefono).toBe(mockUserResponse.telefono);
+      expect(result.ubicacion).toEqual(mockUserResponse.ubicacion);
+      expect(result.createdAt).toEqual(mockUserResponse.createdAt);
+      expect(result.updatedAt).toEqual(mockUserResponse.updatedAt);
     });
   });
 
@@ -114,20 +139,18 @@ describe('UserController', () => {
     it('should return an array of users', async () => {
       const result = await controller.findAll();
       expect(service.findAll).toHaveBeenCalled();
-      
+      // The response should be an array of UserResponse instances with nombre
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(1);
-      
       const userResponse = result[0];
-      expect(userResponse).toMatchObject({
-        _id: mockUser._id,
-        nombre: mockUser.name, // nombre should be mapped from name
-        email: mockUser.email,
-        telefono: mockUser.telefono,
-        ubicacion: mockUser.ubicacion
-      });
-      expect(new Date(userResponse.createdAt).getTime()).toBeCloseTo(now.getTime(), -2);
-      expect(new Date(userResponse.updatedAt).getTime()).toBeCloseTo(now.getTime(), -2);
+      expect(userResponse).toBeInstanceOf(UserResponse);
+      expect(userResponse._id).toBe(mockUserResponse._id);
+      expect(userResponse.nombre).toBe(mockUserResponse.nombre);
+      expect(userResponse.email).toBe(mockUserResponse.email);
+      expect(userResponse.telefono).toBe(mockUserResponse.telefono);
+      expect(userResponse.ubicacion).toEqual(mockUserResponse.ubicacion);
+      expect(userResponse.createdAt).toEqual(mockUserResponse.createdAt);
+      expect(userResponse.updatedAt).toEqual(mockUserResponse.updatedAt);
     });
   });
 
@@ -135,17 +158,15 @@ describe('UserController', () => {
     it('should return a single user', async () => {
       const result = await controller.findOne('1');
       expect(service.findOne).toHaveBeenCalledWith('1');
-      
-      // Verify response structure
-      expect(result).toMatchObject({
-        _id: mockUser._id,
-        nombre: mockUser.name, // nombre should be mapped from name
-        email: mockUser.email,
-        telefono: mockUser.telefono,
-        ubicacion: mockUser.ubicacion
-      });
-      expect(new Date(result.createdAt).getTime()).toBeCloseTo(now.getTime(), -2);
-      expect(new Date(result.updatedAt).getTime()).toBeCloseTo(now.getTime(), -2);
+      // The response should be a UserResponse instance
+      expect(result).toBeInstanceOf(UserResponse);
+      expect(result._id).toBe(mockUserResponse._id);
+      expect(result.nombre).toBe(mockUserResponse.nombre);
+      expect(result.email).toBe(mockUserResponse.email);
+      expect(result.telefono).toBe(mockUserResponse.telefono);
+      expect(result.ubicacion).toEqual(mockUserResponse.ubicacion);
+      expect(result.createdAt).toEqual(mockUserResponse.createdAt);
+      expect(result.updatedAt).toEqual(mockUserResponse.updatedAt);
     });
   });
 });

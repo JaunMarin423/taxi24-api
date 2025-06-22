@@ -7,10 +7,10 @@ import {
   Param, 
   Patch, 
   Query, 
-  ParseUUIDPipe,
   BadRequestException,
   NotFoundException
 } from '@nestjs/common';
+import { IdValidationPipe } from '../../../common/pipes/id-validation.pipe';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ViajeService } from '../services/viaje.service';
 import { CompletarViajeDto } from '../dto/completar-viaje.dto';
@@ -32,9 +32,8 @@ export class ViajeController {
     try {
       // Map DTO to service params
       const viajeParams: CrearViajeParams = {
-        id: randomUUID(), // Generate a new UUID for the trip
         idPasajero: crearViajeDto.pasajeroId,
-        idConductor: crearViajeDto.conductorId || '', // Provide empty string if conductorId is not provided
+        idConductor: crearViajeDto.conductorId || null, // Use null instead of empty string
         origen: {
           lat: crearViajeDto.origen.latitud,
           lng: crearViajeDto.origen.longitud
@@ -46,6 +45,8 @@ export class ViajeController {
         estado: 'PENDIENTE',
         fechaInicio: new Date()
       };
+      
+      console.log('Creating trip with params:', JSON.stringify(viajeParams, null, 2));
       
       return await this.viajeService.crearViaje(viajeParams);
     } catch (error: any) {
@@ -68,7 +69,7 @@ export class ViajeController {
   @ApiResponse({ status: 200, description: 'Viaje activo del pasajero' })
   @ApiResponse({ status: 404, description: 'No se encontró un viaje activo para este pasajero' })
   async obtenerViajeActivoPorPasajero(
-    @Param('pasajeroId', ParseUUIDPipe) pasajeroId: string
+    @Param('pasajeroId', IdValidationPipe) pasajeroId: string
   ) {
     const viaje = await this.viajeService.obtenerViajeActivoPorPasajero(pasajeroId);
     if (!viaje) {
@@ -82,7 +83,7 @@ export class ViajeController {
   @ApiResponse({ status: 200, description: 'Viaje iniciado exitosamente' })
   @ApiResponse({ status: 400, description: 'No se puede iniciar el viaje' })
   @ApiResponse({ status: 404, description: 'Viaje no encontrado' })
-  async iniciarViaje(@Param('id', ParseUUIDPipe) id: string) {
+  async iniciarViaje(@Param('id', IdValidationPipe) id: string) {
     try {
       const viaje = await this.viajeService.obtenerPorId(id);
       if (!viaje) {
@@ -107,7 +108,7 @@ export class ViajeController {
   @ApiOperation({ summary: 'Obtener un viaje por ID' })
   @ApiResponse({ status: 200, description: 'Detalles del viaje' })
   @ApiResponse({ status: 404, description: 'Viaje no encontrado' })
-  async obtenerPorId(@Param('id', ParseUUIDPipe) id: string) {
+  async obtenerPorId(@Param('id', IdValidationPipe) id: string) {
     const viaje = await this.viajeService.obtenerPorId(id);
     if (!viaje) {
       throw new NotFoundException('Viaje no encontrado');
@@ -125,7 +126,7 @@ export class ViajeController {
   @ApiResponse({ status: 400, description: 'No se puede completar el viaje' })
   @ApiResponse({ status: 404, description: 'Viaje no encontrado' })
   async completarViaje(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', IdValidationPipe) id: string,
     @Body() completarViajeDto: CompletarViajeDto
   ): Promise<CompletarViajeResponseDto> {
     try {
@@ -144,7 +145,7 @@ export class ViajeController {
   @ApiResponse({ status: 200, description: 'Viaje activo del conductor' })
   @ApiResponse({ status: 404, description: 'No se encontró un viaje activo para este conductor' })
   async obtenerViajeActivoPorConductor(
-    @Param('conductorId', ParseUUIDPipe) conductorId: string
+    @Param('conductorId', IdValidationPipe) conductorId: string
   ) {
     const viaje = await this.viajeService.obtenerViajeActivoPorConductor(conductorId);
     if (!viaje) {
