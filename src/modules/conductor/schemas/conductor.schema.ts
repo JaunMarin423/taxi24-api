@@ -137,9 +137,6 @@ export const ConductorSchema = SchemaFactory.createForClass(Conductor);
 // Índice geoespacial para búsquedas por ubicación
 ConductorSchema.index({ ubicacion: '2dsphere' });
 
-// Índice único para email
-ConductorSchema.index({ email: 1 }, { unique: true });
-
 // Índice para búsquedas por disponibilidad
 ConductorSchema.index({ disponible: 1 });
 

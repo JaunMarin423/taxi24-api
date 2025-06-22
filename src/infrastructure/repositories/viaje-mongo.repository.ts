@@ -15,8 +15,11 @@ export class ViajeMongoRepository implements ViajeRepository {
   private toDomain(viajeDoc: ViajeDocument | null): ViajeEntity | null {
     if (!viajeDoc) return null;
     
+    // Convert MongoDB _id to string for the domain entity
+    const viajeId = viajeDoc._id.toString();
+    
     return new ViajeEntity(
-      viajeDoc._id, // Use _id instead of id
+      viajeId,
       viajeDoc.idConductor,
       viajeDoc.idPasajero,
       viajeDoc.origen,

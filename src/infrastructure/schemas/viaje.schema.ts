@@ -8,20 +8,14 @@ export interface Ubicacion {
 
 export type EstadoViaje = 'PENDIENTE' | 'EN_CURSO' | 'COMPLETADO' | 'CANCELADO';
 
-export type ViajeDocument = Viaje & Document;
+export type ViajeDocument = Viaje & Document & {
+  _id: any; // This will be converted to string in the repository
+};
 
 @Schema({ 
-  timestamps: true,
-  _id: false // Disable automatic _id generation since we're using our own id field
+  timestamps: true
 })
 export class Viaje {
-  @Prop({ 
-    type: String, 
-    required: true,
-    unique: true,
-    index: true
-  })
-  _id!: string; // Use _id as the primary key but with string type
 
   @Prop({ type: String, required: true })
   idConductor!: string;

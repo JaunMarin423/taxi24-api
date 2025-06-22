@@ -3,7 +3,13 @@
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
+  "testTimeout": 30000,
+  "setupFilesAfterEnv": ["<rootDir>/../jest.setup.js"],
+  "globalSetup": "<rootDir>/../jest.global-setup.js",
+  "globalTeardown": "<rootDir>/../jest.global-teardown.js",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "detectOpenHandles": true,
+  "forceExit": true
 }

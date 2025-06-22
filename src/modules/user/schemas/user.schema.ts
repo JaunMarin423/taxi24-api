@@ -97,4 +97,3 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 // Crear índice geoespacial para búsquedas por ubicación
 UserSchema.index({ 'ubicacion': '2dsphere' }, { background: true });
-UserSchema.index({ email: 1 }, { unique: true, background: true });
