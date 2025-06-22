@@ -5,6 +5,7 @@ import {
   HealthIndicatorResult,
   HealthIndicatorStatus
 } from '@nestjs/terminus';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('health')
 export class HealthController {
@@ -14,6 +15,7 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
+  @ApiExcludeEndpoint()
   check() {
     return this.health.check([
       async (): Promise<HealthIndicatorResult> => ({

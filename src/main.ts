@@ -50,7 +50,6 @@ async function bootstrap() {
       ### 🛠️ Tecnologías Utilizadas
       - **Backend**: NestJS con TypeScript
       - **Base de Datos**: MongoDB con Mongoose
-      - **Autenticación**: JWT (JSON Web Tokens)
       - **Documentación**: Swagger/OpenAPI
       - **Testing**: Jest con cobertura de código
       
@@ -60,7 +59,6 @@ async function bootstrap() {
       | 200 | OK - La petición fue exitosa |
       | 201 | Creado - Recurso creado exitosamente |
       | 400 | Solicitud incorrecta - Error en la validación de datos |
-      | 401 | No autorizado - Se requiere autenticación |
       | 403 | Prohibido - No tiene permisos para acceder al recurso |
       | 404 | No encontrado - El recurso solicitado no existe |
       | 500 | Error del servidor - Ocurrió un error inesperado |
@@ -93,8 +91,6 @@ async function bootstrap() {
     .addTag('Conductores', 'Operaciones relacionadas con conductores y vehículos')
     .addTag('Viajes', 'Gestión de viajes y seguimiento en tiempo real')
     .addTag('Facturas', 'Generación y consulta de facturas')
-    .addTag('Pasajeros', 'Gestión de usuarios pasajeros')
-    .addTag('Autenticación', 'Autenticación y autorización de usuarios')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

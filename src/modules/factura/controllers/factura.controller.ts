@@ -1,5 +1,5 @@
 import { Controller, Get, Param, UseGuards, ParseUUIDPipe, NotFoundException, ParseUUIDPipeOptions } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { FacturaService } from '../services/factura.service';
 import { Factura } from '../entities/factura.entity';
 
@@ -33,27 +33,20 @@ export class FacturaController {
   @ApiOperation({ summary: 'Obtener facturas por ID de pasajero' })
   @ApiParam({ name: 'pasajeroId', description: 'ID del pasajero' })
   @ApiResponse({ status: 200, description: 'Lista de facturas del pasajero', type: [Factura] })
+  @ApiExcludeEndpoint()
   async listarPorPasajero(
     @Param('pasajeroId', ParseUUIDPipe) pasajeroId: string,
   ): Promise<Factura[]> {
     return this.facturaService.listarPorPasajero(pasajeroId);
   }
 
-  @Get('conductor/:conductorId')
-  @ApiOperation({ summary: 'Obtener facturas por ID de conductor' })
-  @ApiParam({ name: 'conductorId', description: 'ID del conductor' })
-  @ApiResponse({ status: 200, description: 'Lista de facturas del conductor', type: [Factura] })
-  async listarPorConductor(
-    @Param('conductorId', ParseUUIDPipe) conductorId: string,
-  ): Promise<Factura[]> {
-    return this.facturaService.listarPorConductor(conductorId);
-  }
 
   @Get('viaje/:viajeId')
   @ApiOperation({ summary: 'Obtener factura por ID de viaje' })
   @ApiParam({ name: 'viajeId', description: 'ID del viaje' })
   @ApiResponse({ status: 200, description: 'Factura encontrada', type: Factura })
   @ApiResponse({ status: 404, description: 'Factura no encontrada' })
+  @ApiExcludeEndpoint()
   async obtenerPorViajeId(
     @Param('viajeId') viajeId: string,
   ): Promise<Factura> {

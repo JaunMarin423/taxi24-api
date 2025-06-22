@@ -83,7 +83,7 @@ class UserResponse {
  * Controlador para la gestión de pasajeros en el sistema Taxi24.
  * Permite realizar operaciones CRUD sobre los pasajeros del sistema.
  */
-@ApiTags('Pasajeros')
+@ApiTags('Users')
 @Controller('users')
 @ApiExtraModels(UserResponse)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -99,15 +99,15 @@ export class UserController {
    */
   @Post()
   @ApiOperation({
-    summary: 'Crear un nuevo pasajero',
-    description: 'Registra un nuevo pasajero en el sistema con la información proporcionada.'
+    summary: 'Create a new user',
+    description: 'Registers a new user in the system with the provided information.'
   })
   @ApiCreatedResponse({
-    description: 'El pasajero ha sido creado exitosamente',
+    description: 'The user has been successfully created',
     type: UserResponse
   })
   @ApiBadRequestResponse({
-    description: 'Datos de entrada inválidos o incompletos',
+    description: 'Invalid or incomplete input data',
     schema: {
       example: {
         statusCode: 400,
@@ -180,13 +180,13 @@ export class UserController {
   }
 
   /**
-   * Obtiene todos los pasajeros registrados
-   * @returns Lista de pasajeros
+   * Obtiene todos los usuarios registrados
+   * @returns Lista de usuarios
    */
   @Get()
   @ApiOperation({
-    summary: 'Obtener todos los pasajeros',
-    description: 'Retorna una lista paginada de todos los pasajeros registrados en el sistema.'
+    summary: 'Get all users',
+    description: 'Returns a list of all users registered in the system.'
   })
   @ApiQuery({
     name: 'page',
@@ -204,11 +204,11 @@ export class UserController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Lista de pasajeros',
+    description: 'Lista de usuarios',
     type: [UserResponse],
     headers: {
       'X-Total-Count': {
-        description: 'Número total de pasajeros',
+        description: 'Número total de usuarios',
         schema: { type: 'integer' }
       },
       'X-Page': {
@@ -239,40 +239,40 @@ export class UserController {
       });
     } catch (error) {
       throw new HttpException(
-        'Error al obtener los pasajeros',
+        'Error al obtener los usuarios',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   /**
-   * Obtiene un pasajero por su ID
-   * @param id ID del pasajero
-   * @returns Información del pasajero
+   * Obtiene un usuario por su ID
+   * @param id ID del usuario
+   * @returns Información del usuario
    */
   @Get(':id')
   @ApiOperation({
-    summary: 'Obtener un pasajero por ID',
-    description: 'Obtiene los detalles de un pasajero específico utilizando su ID único.'
+    summary: 'Get a user by ID',
+    description: 'Finds and returns information for a specific user using their unique ID.'
   })
   @ApiParam({
     name: 'id',
     required: true,
-    description: 'ID único del pasajero',
+    description: 'ID único del usuario',
     example: '507f1f77bcf86cd799439011'
   })
   @ApiResponse({
     status: 200,
-    description: 'Detalles del pasajero',
+    description: 'Detalles del usuario',
     type: UserResponse
   })
   @ApiResponse({
     status: 404,
-    description: 'Pasajero no encontrado',
+    description: 'Usuario no encontrado',
     schema: {
       example: {
         statusCode: 404,
-        message: 'No se encontró el pasajero con el ID especificado',
+        message: 'No se encontró el usuario con el ID especificado',
         error: 'Not Found'
       }
     }
@@ -283,7 +283,7 @@ export class UserController {
     schema: {
       example: {
         statusCode: 400,
-        message: 'ID de pasajero inválido',
+        message: 'ID de usuario inválido',
         error: 'Bad Request'
       }
     }
@@ -310,7 +310,7 @@ export class UserController {
         throw error;
       }
       throw new HttpException(
-        'Error al obtener el pasajero',
+        'Error al obtener el usuario',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -325,8 +325,8 @@ export class UserController {
    */
   @Get('cercanos')
   @ApiOperation({
-    summary: 'Buscar conductores cercanos',
-    description: 'Encuentra conductores disponibles dentro de un radio específico de la ubicación proporcionada.'
+    summary: 'Find nearby drivers',
+    description: 'Finds available drivers within a 3 km radius from the provided location.'
   })
   @ApiQuery({
     name: 'latitud',

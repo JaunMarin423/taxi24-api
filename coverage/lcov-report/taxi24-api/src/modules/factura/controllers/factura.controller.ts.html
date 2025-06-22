@@ -238,16 +238,6 @@ export class FacturaController {
 <span class="cstat-no" title="statement not covered" >    return this.facturaService.listarPorPasajero(pasajeroId);</span>
   }
 &nbsp;
-  @Get('conductor/:conductorId')
-  @ApiOperation({ summary: 'Obtener facturas por ID de conductor' })
-  @ApiParam({ name: 'conductorId', description: 'ID del conductor' })
-  @ApiResponse({ status: 200, description: 'Lista de facturas del conductor', type: [Factura] })
-<span class="fstat-no" title="function not covered" >  async </span>listarPorConductor(
-    @Param('conductorId', ParseUUIDPipe) conductorId: string,
-  ): Promise&lt;Factura[]&gt; {
-<span class="cstat-no" title="statement not covered" >    return this.facturaService.listarPorConductor(conductorId);</span>
-  }
-&nbsp;
   @Get('viaje/:viajeId')
   @ApiOperation({ summary: 'Obtener factura por ID de viaje' })
   @ApiParam({ name: 'viajeId', description: 'ID del viaje' })
