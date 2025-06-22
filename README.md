@@ -84,6 +84,89 @@ npm run start:dev
 La API estará disponible en:  
 `http://localhost:3000`
 
+## 🧪 Ejecución de Pruebas
+
+El proyecto incluye pruebas unitarias y de integración para garantizar la calidad del código. A continuación, se detalla cómo ejecutar las pruebas y verificar la cobertura de código.
+
+### Ejecutar Todas las Pruebas
+
+Para ejecutar todas las pruebas del proyecto:
+
+```bash
+npm test
+```
+
+### Ejecutar Pruebas con Cobertura
+
+Para ejecutar las pruebas y generar un informe de cobertura:
+
+```bash
+npm test -- --coverage
+```
+
+Este comando generará un informe detallado en la consola y creará una carpeta `coverage` con informes en varios formatos.
+
+### Ver el Informe de Cobertura
+
+Después de ejecutar las pruebas con cobertura, puedes ver un informe detallado de la siguiente manera:
+
+1. **En la consola**: El resumen de cobertura se muestra directamente en la terminal.
+
+2. **Informe HTML**: Abre el archivo `coverage/lcov-report/index.html` en tu navegador para ver un informe interactivo:
+   ```bash
+   start coverage/lcov-report/index.html  # En Windows
+   open coverage/lcov-report/index.html   # En macOS
+   xdg-open coverage/lcov-report/index.html  # En Linux
+   ```
+
+### Estructura de las Pruebas
+
+Las pruebas están organizadas siguiendo la estructura del proyecto:
+
+```
+test/
+├── conductor/                 # Pruebas del módulo de conductores
+│   └── conductor.service.spec.ts
+├── domain/                    # Pruebas de casos de uso
+│   └── use-cases/
+│       ├── crear-viaje.use-case.spec.ts
+│       └── obtener-conductores-cercanos.use-case.spec.ts
+├── facturas/                  # Pruebas del módulo de facturas
+│   └── facturas.controller.spec.ts
+├── shared/                    # Pruebas de utilidades compartidas
+│   └── pipes/
+│       └── object-id-or-uuid.pipe.spec.ts
+└── viajes/                    # Pruebas del módulo de viajes
+    └── viajes.controller.spec.ts
+```
+
+### Ejecutar un Archivo de Prueba Específico
+
+Para ejecutar un archivo de prueba específico:
+
+```bash
+npx jest test/ruta/al/archivo-de-prueba.spec.ts
+```
+
+### Ejecutar Pruebas en Modo Watch
+
+Para ejecutar las pruebas en modo watch (útil durante el desarrollo):
+
+```bash
+npm test -- --watch
+```
+
+### Umbrales de Cobertura
+
+El proyecto incluye umbrales mínimos de cobertura configurados. Si la cobertura cae por debajo de estos umbrales, las pruebas fallarán:
+
+- Declaraciones (Statements): 80%
+- Ramas (Branches): 80%
+- Funciones (Functions): 80%
+- Líneas (Lines): 80%
+
+Estos umbrales se pueden ajustar en el archivo `jest.config.js` si es necesario.
+
 ## 📚 Documentación de la API
 
 ### Documentación Interactiva
